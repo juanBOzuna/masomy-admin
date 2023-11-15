@@ -1,12 +1,11 @@
 <?php namespace App\Http\Controllers;
 
-	use App\Models\CategoriesModel;
 	use Session;
 	use Request;
 	use DB;
 	use CRUDBooster;
 
-	class AdminSubcategoriesController extends \crocodicstudio\crudbooster\controllers\CBController {
+	class AdminProducts1Controller extends \crocodicstudio\crudbooster\controllers\CBController {
 
 	    public function cbInit() {
 
@@ -26,25 +25,42 @@
 			$this->button_filter = true;
 			$this->button_import = false;
 			$this->button_export = false;
-			$this->table = "subcategories";
+			$this->table = "products";
 			# END CONFIGURATION DO NOT REMOVE THIS LINE
 
 			# START COLUMNS DO NOT REMOVE THIS LINE
 			$this->col = [];
 			$this->col[] = ["label"=>"Name","name"=>"name"];
-			$this->col[] = ["label"=>"Categoria","name"=>"categoria_id","join"=>"categories,name"];
+			$this->col[] = ["label"=>"Price","name"=>"price"];
+			$this->col[] = ["label"=>"Description","name"=>"description"];
+			$this->col[] = ["label"=>"Stock","name"=>"stock"];
+			$this->col[] = ["label"=>"Sub Categorie Id","name"=>"sub_categorie_id","join"=>"sub_categorie,id"];
+			$this->col[] = ["label"=>"Picture","name"=>"picture","image"=>true];
+			$this->col[] = ["label"=>"Discount","name"=>"discount"];
 			# END COLUMNS DO NOT REMOVE THIS LINE
 
 			# START FORM DO NOT REMOVE THIS LINE
 			$this->form = [];
-			$this->form[] = ['label'=>'Nombre','name'=>'name','type'=>'text','validation'=>'required|string|min:3|max:70','width'=>'col-sm-10','placeholder'=>'You can only enter the letter only'];
-			$this->form[] = ['label'=>'Categoria','name'=>'categoria_id','type'=>'select2','validation'=>'required|min:1|max:255','width'=>'col-sm-10','datatable'=>'categories,name'];
+			$this->form[] = ['label'=>'Name','name'=>'name','type'=>'textarea','validation'=>'required|string|min:5|max:5000','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Price','name'=>'price','type'=>'money','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Description','name'=>'description','type'=>'textarea','validation'=>'required|string|min:5|max:5000','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Stock','name'=>'stock','type'=>'number','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Sub Categorie Id','name'=>'sub_categorie_id','type'=>'select2','validation'=>'required|min:1|max:255','width'=>'col-sm-10','datatable'=>'sub_categorie,id'];
+			$this->form[] = ['label'=>'Picture','name'=>'picture','type'=>'upload','validation'=>'required|image|max:3000','width'=>'col-sm-10','help'=>'File types support : JPG, JPEG, PNG, GIF, BMP'];
+			$this->form[] = ['label'=>'Discount','name'=>'discount','type'=>'money','validation'=>'required|integer|min:0','width'=>'col-sm-10'];
+			$this->form[] = ['label'=>'Status','name'=>'status','type'=>'text','validation'=>'required|min:1|max:255','width'=>'col-sm-10'];
 			# END FORM DO NOT REMOVE THIS LINE
 
 			# OLD START FORM
 			//$this->form = [];
-			//$this->form[] = ["label"=>"Name","name"=>"name","type"=>"text","required"=>TRUE,"validation"=>"required|string|min:3|max:70","placeholder"=>"You can only enter the letter only"];
-			//$this->form[] = ["label"=>"Categoria Id","name"=>"categoria_id","type"=>"select2","required"=>TRUE,"validation"=>"required|min:1|max:255","datatable"=>"categoria,id"];
+			//$this->form[] = ["label"=>"Name","name"=>"name","type"=>"textarea","required"=>TRUE,"validation"=>"required|string|min:5|max:5000"];
+			//$this->form[] = ["label"=>"Price","name"=>"price","type"=>"money","required"=>TRUE,"validation"=>"required|integer|min:0"];
+			//$this->form[] = ["label"=>"Description","name"=>"description","type"=>"textarea","required"=>TRUE,"validation"=>"required|string|min:5|max:5000"];
+			//$this->form[] = ["label"=>"Stock","name"=>"stock","type"=>"number","required"=>TRUE,"validation"=>"required|integer|min:0"];
+			//$this->form[] = ["label"=>"Sub Categorie Id","name"=>"sub_categorie_id","type"=>"select2","required"=>TRUE,"validation"=>"required|min:1|max:255","datatable"=>"sub_categorie,id"];
+			//$this->form[] = ["label"=>"Picture","name"=>"picture","type"=>"upload","required"=>TRUE,"validation"=>"required|image|max:3000","help"=>"File types support : JPG, JPEG, PNG, GIF, BMP"];
+			//$this->form[] = ["label"=>"Discount","name"=>"discount","type"=>"money","required"=>TRUE,"validation"=>"required|integer|min:0"];
+			//$this->form[] = ["label"=>"Status","name"=>"status","type"=>"text","required"=>TRUE,"validation"=>"required|min:1|max:255"];
 			# OLD END FORM
 
 			/* 
@@ -254,9 +270,6 @@
 	    */
 	    public function hook_before_add(&$postdata) {        
 	        //Your code here
-			$categoria = CategoriesModel::where('id',$postdata['categoria_id'])->first();
-			// dd($postdata);
-			$postdata['name'] = $categoria->name.' - '.$postdata['name'];
 
 	    }
 
