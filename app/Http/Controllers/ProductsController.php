@@ -13,7 +13,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = ProductsModel::all();
-        return response()->json($products);
+        return response()->json(['succes'=> true]);
     }
 
     // Obtener un producto específico por ID

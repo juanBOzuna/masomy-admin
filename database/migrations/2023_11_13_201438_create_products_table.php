@@ -18,11 +18,11 @@ class CreateProductsTable extends Migration
             $table->text("name");
             $table->float("price");
             $table->text("description")->nullable();
-            $table->integer("stock")->default(0);
+            // $table->integer("stock")->default(0);
             $table->string("sub_categorie_id")->nullable();
             $table->string("picture")->nullable();
             $table->float("discount")->default(0);
-            $table->tinyInteger("status")->default(1);
+            $table->boolean("is_active")->default(0);
             $table->timestamps();
         });
     }
