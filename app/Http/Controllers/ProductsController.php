@@ -13,7 +13,7 @@ class ProductsController extends Controller
     public function index()
     {
         $products = ProductsModel::all();
-        return response()->json(['succes'=> true]);
+        return response()->json(['succes' => true]);
     }
 
     // Obtener un producto específico por ID
@@ -83,11 +83,29 @@ class ProductsController extends Controller
             return $totalReviews > 0 ? $totalRating / $totalReviews : 0;
         });
 
-        // Tomar los primeros 3 productos
-        $topProducts = $topProducts->take(3);
+        if (count($topProducts) < 3) {
+            $topProducts2 = ProductsModel::with([
+                'valorations' => function ($query) {
+                    $query->select('product_id', \DB::raw('COUNT(*) as total_reviews'), \DB::raw('SUM(rating) as total_rating'))
+                        ->groupBy('product_id');
+                }
+            ])
+                ->has('valorations', '=', 0) // Obtén productos sin valoraciones
+                ->limit(count($topProducts) - 3) // Limita a tres productos
+                ->get();
 
-        // Obtener solo los valores y convertir a JSON
-        return response()->json($topProducts->values());
+            foreach ($topProducts2 as $value) {
+                # code...
+                $value->valorations = [
+                    "product_id" => 3,
+                    "total_reviews" => 1,
+                    "total_rating" => "3"
+                ];
+            }
+
+            $topProducts = $topProducts->concat($topProducts2);
+        }
+        return response()->json($topProducts);
     }
 
     public function getBySubCategorieId($sub_categorie_id)
