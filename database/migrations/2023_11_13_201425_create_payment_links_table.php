@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\PaymentLinksModel;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +16,10 @@ class CreatePaymentLinksTable extends Migration
     {
         Schema::create('payment_links', function (Blueprint $table) {
             $table->id();
+            $table->text('reference');
+            $table->text('link');
+            $table->unsignedBigInteger('user_id');
+            $table->text('status')->default(PaymentLinksModel::PENDING_STATUS);
             $table->timestamps();
         });
     }

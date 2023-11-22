@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\EpaycoController;
 use App\Http\Controllers\AuthController;
 // use App\Http\Controllers\ProductsController;
 use App\Http\Controllers\CategoriesController;
@@ -26,6 +27,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::post('logout', [AuthController::class, 'logout']);
+    Route::post('generatePayMentLink', [EpaycoController::class, 'geneateLink']);
+    Route::post('generatePayMentLink2', [EpaycoController::class, 'testApi']);
 });
 
 Route::post('register', [AuthController::class, 'register']);
