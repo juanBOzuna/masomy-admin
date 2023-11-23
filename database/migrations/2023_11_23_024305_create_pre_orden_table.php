@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\PaymentLinksModel;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentLinksTable extends Migration
+class CreatePreOrdenTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,12 +13,11 @@ class CreatePaymentLinksTable extends Migration
      */
     public function up()
     {
-        Schema::create('payment_links', function (Blueprint $table) {
+        Schema::create('pre_orden', function (Blueprint $table) {
             $table->id();
-            $table->text('reference');
-            $table->text('link');
-            $table->unsignedBigInteger('user_id');
-            $table->text('status');
+            $table->unsignedDouble('total_price');
+            $table->unsignedDouble('total_disccount');
+            $table->unsignedDouble('payment_link_id');
             $table->timestamps();
         });
     }
@@ -31,6 +29,6 @@ class CreatePaymentLinksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payment_links');
+        Schema::dropIfExists('pre_orden');
     }
 }

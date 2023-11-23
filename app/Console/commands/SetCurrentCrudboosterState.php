@@ -42,30 +42,30 @@ class SetCurrentCrudboosterState extends Command
         return 0;
     }
 
-    static public function startCommand( $info )
+    static public function startCommand($info)
     {
         $tables = SaveCurrentCrudboosterState::$TABLES;
         DB::beginTransaction();
-        foreach ( $tables as $e){
+        foreach ($tables as $e) {
 
             DB::table($e)->truncate();
-            $current_table = json_decode(file_get_contents("database/seeders/current_state/".$e."_state.json"));
+            $current_table = json_decode(file_get_contents("database/seeders/current_state/" . $e . "_state.json"));
 
-            foreach ( $current_table as $i => $v){
-                $values = (array)$v;
+            foreach ($current_table as $i => $v) {
+                $values = (array) $v;
                 DB::table($e)->insert($values);
             }
 
-            $info->info( $e." Completed.");
+            $info->info($e . " Completed.");
 
         }
 
-        $modulesURL = DB::table("cms_menus")->where("type","URL")->get();
-        foreach ($modulesURL as $module){
+        $modulesURL = DB::table("cms_menus")->where("type", "URL")->get();
+        foreach ($modulesURL as $module) {
 
-            $list = explode("/",$module->path);
+            $list = explode("/", $module->path);
 
-            DB::table("cms_menus")->where("path",$module->path)->update(["path"=>env('APP_URL')."/admin/".$list[count($list)-1]]);
+            DB::table("cms_menus")->where("path", $module->path)->update(["path" => env('APP_URL') . "/admin/" . $list[count($list) - 1]]);
         }
 
         DB::commit();

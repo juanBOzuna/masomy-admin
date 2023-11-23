@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\PaymentLinksModel;
+use App\Models\PreOrdenDetailModel;
+use App\Models\PreOrdenModel;
 use Illuminate\Support\Str;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
@@ -58,8 +60,34 @@ class EpaycoController extends Controller
                 return $quantity . ' ' . $product['name'];
             }, $existingProducts->toArray()));
 
+            $subtotal = 0;
+            $total = 0;
 
-            $grand_total = $existingProducts->sum('price');
+            $details = array();
+            foreach ($existingProducts as $value) {
+                # code...
+                $quantity = collect($request->products)->firstWhere('id', $value->id)['quantity'];
+                $subtotal_act += ($value->price * intval($quantity));
+                $subtotal += $subtotal_act;
+                $total_act = $subtotal_act - (($subtotal_act * $value->discount) / 100);
+                $total += $total_act;
+
+                $detail_object = [
+                    'id' => $value->id,
+                    'quantity' => $quantity,
+                    'price' => $value->price,
+                    'subtotal' => $subtotal_act,
+                    'percentage_disccount' => $value->discount,
+                    'total_discount' => (($subtotal_act * $value->discount) / 100),
+                    'total' => $total_act,
+                ];
+
+                array_push($details, $detail_object);
+            }
+            // var_dump($details);
+            // dd($request->products);
+
+            // $grand_total = $existingProducts->sum('price');
             $llaveDePago = $this->generarLlaveDePago();
             // dd($text_description);
 
@@ -84,7 +112,7 @@ class EpaycoController extends Controller
                     CURLOPT_POSTFIELDS => '{
               "quantity": 1,
               "onePayment":true,
-              "amount": "' . $grand_total . '",
+              "amount": "' . $total . '",
               "currency": "COP",
               "id": "0",
               "reference": "' . $llaveDePago . '",
@@ -108,11 +136,31 @@ class EpaycoController extends Controller
             // return response()->json(['success' => true, 'url' => $response], 200);
             curl_close($curl);
             if ($response->success) {
-                PaymentLinksModel::create([
+                $payment_link = PaymentLinksModel::create([
                     'reference' => $llaveDePago,
                     'link' => $response->data->routeLink,
+                    'status' => PaymentLinksModel::POR_DEFINIR,
                     'user_id' => $user['id']
                 ]);
+
+                $orden = PreOrdenModel::create([
+                    'total_price' => array_sum(array_column($details, 'total')),
+                    'total_disccount' => array_sum(array_column($details, 'total_discount')),
+                    'payment_link_id' => $payment_link->id,
+                ]);
+
+                foreach ($details as $value) {
+                    # code...
+                    PreOrdenDetailModel::create([
+                        'quantity' => $value['quantity'],
+                        'subtotal' => $value['subtotal'],
+                        'disccount' => $value['total_discount'],
+                        'total' => $value['total'],
+                        'product_id' => $value['id'],
+                        'pre_orden_id' => $orden->id
+                    ]);
+                }
+
             }
             $url = $response->data->routeLink;
             // dd();
@@ -140,73 +188,12 @@ class EpaycoController extends Controller
         return $llaveDePago;
     }
 
-    //     static function checkEpaycoStatus($id = null,$write = null){
-
-    //         $payments = PaymentAttempts::where('userID',$id)
-//             ->where('status',"!=",PaymentAttempts::ACEPTADA)
-//             ->where('status',"!=",PaymentAttempts::CANCELADA)
-//             ->where('status',"!=",PaymentAttempts::ABANDONADA)
-//             ->where('status',"!=",PaymentAttempts::FALLIDA)
-//             ->where('status',"!=",PaymentAttempts::NO_PAGADO)
-//             ->where('status',"!=",PaymentAttempts::RECHAZADA)
-//             ->where('status',"!=",PaymentAttempts::PAGADO)
-//             ->where('status',"!=",PaymentAttempts::APROBADA)
-//             ->whereBetween('created_at', [
-//                 now()->subWeeks(3),
-//                 now()
-//             ])->get();
+    static function checkEpaycoStatus($token, $ref)
+    {
 
 
-    //         if($write){
-//             $write->info(json_encode($payments));
-//         }
 
-
-    //         if(count($payments) > 0){
-//             $token = self::login()->token;
-//         }
-//         foreach ($payments as $pay){
-
-
-    //             $response = Http::withHeaders([
-//                 'Accept' => 'application/json',
-//                 'Content-Type' => 'application/json',
-//                 'Authorization' => 'Bearer '.$token,
-//             ])->post('https://apify.epayco.co/transaction',['filter' => ['referenceClient' => $pay->payRef]]);
-
-    //             $referenses = json_decode($response)->data->data;
-
-    //             if (count($referenses) >= 1) {
-
-    //                 if( $referenses[0]->status == PaymentAttempts::PAGADO || $referenses[0]->status == PaymentAttempts::APROBADA || $referenses[0]->status == PaymentAttempts::ACEPTADA  ){
-
-    //                   if($write){
-//                     $write->info(json_encode($pay));
-//                   }
-
-    //                   WalletController::make($id,$pay->amount,WalletController::IN,"Recarga desde la App.");
-
-    //                 }
-
-    //                 $PaymentAttempts = PaymentAttempts::where('_id',$pay->id)->first();
-//                 $PaymentAttempts->status = $referenses[0]->status;
-//                 $PaymentAttempts->update();
-
-    //             }
-
-    //         }
-
-    //         $wallet =  WalletController::getWallet($id);
-
-    //         if( $wallet->technical_id == null  ){
-
-    //             $wallet = WalletController::createWallet($id);
-
-    //         }
-
-    //         return $wallet;
-
-    //     }
+    }
 
     private static function login()
     {
