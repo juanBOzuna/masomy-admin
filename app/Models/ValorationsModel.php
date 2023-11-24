@@ -21,4 +21,9 @@ class ValorationsModel extends Model
     {
         return $this->belongsTo(ProductsModel::class, 'product_id');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

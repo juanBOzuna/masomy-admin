@@ -15,4 +15,9 @@ class ProductsModel extends Model
     {
         return $this->hasMany(ValorationsModel::class, 'product_id');
     }
+
+    public function subCategory()
+    {
+        return $this->belongsTo(SubCategoriesModel::class);
+    }
 }

@@ -16,40 +16,35 @@ class ProductsController extends Controller
         return response()->json(['succes' => true]);
     }
 
-    // Obtener un producto específico por ID
     public function show($id)
     {
-        // Obtener el producto con sus valoraciones
-        $product = ProductsModel::with('valorations')->find($id);
 
+        $product = ProductsModel::with(['valorations.user:id,name'])
+            ->find($id);
+    
         if (!$product) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
         }
+    
 
-        // Calcular la cantidad de valoraciones
         $totalReviews = $product->valorations->count();
+    
 
-        // Calcular el promedio de estrellas
         $averageRating = $totalReviews > 0 ? $product->valorations->avg('rating') : 0;
+    
 
-        // Agregar la información al arreglo del producto
         $product->total_reviews = $totalReviews;
         $product->average_rating = $averageRating;
-
-        unset($product->valorations);
-
-
+    
         return response()->json($product);
     }
 
-    // Crear un nuevo producto
     public function store(Request $request)
     {
         $product = ProductsModel::create($request->all());
         return response()->json($product, 201);
     }
 
-    // Actualizar un producto existente
     public function update(Request $request, $id)
     {
         $product = ProductsModel::find($id);
@@ -57,7 +52,6 @@ class ProductsController extends Controller
         return response()->json($product, 200);
     }
 
-    // Eliminar un producto
     public function destroy($id)
     {
         ProductsModel::destroy($id);
@@ -75,7 +69,7 @@ class ProductsController extends Controller
             ->whereHas('valorations') // Asegura que solo se seleccionen productos con al menos una valoración
             ->get();
 
-        // Ordenar los productos en memoria según la valoración promedio
+
         $topProducts = $topProducts->sortByDesc(function ($product) {
             $totalReviews = $product->valorations->first()->total_reviews ?? 0;
             $totalRating = $product->valorations->first()->total_rating ?? 0;
@@ -118,7 +112,7 @@ class ProductsController extends Controller
             return response()->json(['error' => $validator->errors()], 400);
         }
 
-        // $valorations = ValorationsModel::where('product_id', $sub_categorie_id)->get();
+
         $products = ProductsModel::where('sub_categorie_id', $sub_categorie_id)->get();
 
         return response()->json($products);
