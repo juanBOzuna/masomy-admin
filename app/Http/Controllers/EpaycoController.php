@@ -67,7 +67,7 @@ class EpaycoController extends Controller
             foreach ($existingProducts as $value) {
                 # code...
                 $quantity = collect($request->products)->firstWhere('id', $value->id)['quantity'];
-                $subtotal_act += ($value->price * intval($quantity));
+                $subtotal_act = ($value->price * intval($quantity));
                 $subtotal += $subtotal_act;
                 $total_act = $subtotal_act - (($subtotal_act * $value->discount) / 100);
                 $total += $total_act;
@@ -161,19 +161,14 @@ class EpaycoController extends Controller
                         'pre_orden_id' => $orden->id
                     ]);
                 }
-
             }
             $url = $response->data->routeLink;
             // dd($response->data);
             return response()->json(['success' => true, 'url' => $url, 'payment_reference' => $llaveDePago, 'other' => 'other'], 200);
-
-
         } catch (\Exception $e) {
 
-            return response()->json(['success' => false, 'payLink' => null, 'message' => $e->getMessage()], 400);
-
+            return response()->json(['success' => false, 'url' => null, 'message' => $e->getMessage()], 400);
         }
-
     }
 
     public function testApi()
@@ -191,9 +186,6 @@ class EpaycoController extends Controller
 
     static function checkEpaycoStatus($token, $ref)
     {
-
-
-
     }
 
     private static function login()
@@ -222,57 +214,56 @@ class EpaycoController extends Controller
 
         curl_close($curl);
         return json_decode($response);
-
     }
 
     //     private function generateLinkEpayco($token, $gandTotal, $data)
-//     {
+    //     {
 
     // //        dd($data['description']);
-//         $curl = curl_init();
-//         curl_setopt_array($curl, array(
-//             CURLOPT_URL => 'https://apify.epayco.co/collection/link/create',
-//             CURLOPT_RETURNTRANSFER => true,
-//             CURLOPT_ENCODING => '',
-//             CURLOPT_MAXREDIRS => 10,
-//             CURLOPT_TIMEOUT => 0,
-//             CURLOPT_FOLLOWLOCATION => true,
-//             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-//             CURLOPT_CUSTOMREQUEST => 'POST',
-//             CURLOPT_POSTFIELDS => '{
-//               "quantity": 1,
-//               "onePayment":true,
-//               "amount": "'. $gandTotal .'",
-//               "currency": "COP",
-//               "id": "0",
-//               "reference": "'. $data['payRef'] .'",
-//               "base": "0",
-//               "description": "'. $data['description'] .'",
-//               "title": "'. $data['title'] .'",
-//               "typeSell": "1",
-//               "tax": "0",
-//               "email": "'. $data['email'] .'",
-//               "urlResponse": "'. $data['urlResponse'] .'"
-//             }',
-//             CURLOPT_HTTPHEADER => array(
-//                 'Accept: application/json',
-//                 'Content-Type: application/json',
-//                 'Authorization: Bearer ' . $token
-//             )
-//         ));
+    //         $curl = curl_init();
+    //         curl_setopt_array($curl, array(
+    //             CURLOPT_URL => 'https://apify.epayco.co/collection/link/create',
+    //             CURLOPT_RETURNTRANSFER => true,
+    //             CURLOPT_ENCODING => '',
+    //             CURLOPT_MAXREDIRS => 10,
+    //             CURLOPT_TIMEOUT => 0,
+    //             CURLOPT_FOLLOWLOCATION => true,
+    //             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+    //             CURLOPT_CUSTOMREQUEST => 'POST',
+    //             CURLOPT_POSTFIELDS => '{
+    //               "quantity": 1,
+    //               "onePayment":true,
+    //               "amount": "'. $gandTotal .'",
+    //               "currency": "COP",
+    //               "id": "0",
+    //               "reference": "'. $data['payRef'] .'",
+    //               "base": "0",
+    //               "description": "'. $data['description'] .'",
+    //               "title": "'. $data['title'] .'",
+    //               "typeSell": "1",
+    //               "tax": "0",
+    //               "email": "'. $data['email'] .'",
+    //               "urlResponse": "'. $data['urlResponse'] .'"
+    //             }',
+    //             CURLOPT_HTTPHEADER => array(
+    //                 'Accept: application/json',
+    //                 'Content-Type: application/json',
+    //                 'Authorization: Bearer ' . $token
+    //             )
+    //         ));
 
     //         $response = curl_exec($curl);
 
     // //        dd($response);
-//         curl_close($curl);
-//         return json_decode($response);
-//     }
+    //         curl_close($curl);
+    //         return json_decode($response);
+    //     }
 
 
     //     private function minutesDifference($date) {
-//         $now = Carbon::now();
-//         $givenDate = Carbon::parse($date);
-//         return $now->diffInMinutes($givenDate);
-//     }
+    //         $now = Carbon::now();
+    //         $givenDate = Carbon::parse($date);
+    //         return $now->diffInMinutes($givenDate);
+    //     }
 
 }
