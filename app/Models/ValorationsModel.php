@@ -10,6 +10,13 @@ class ValorationsModel extends Model
     use HasFactory;
     protected $table = 'valorations';
 
+    protected $fillable = [
+        'rating',
+        'comment',
+        'user_id',
+        'product_id'
+    ];
+
     public function product()
     {
         return $this->belongsTo(ProductsModel::class, 'product_id');

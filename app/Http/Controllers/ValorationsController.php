@@ -56,17 +56,21 @@ class ValorationsController extends Controller
         }
 
         $user = Auth::user(); // asumiendo que tienes autenticación configurada
+        $valoration_old = ValorationsModel::where('user_id', $user->id)->where('product_id', $request->input('product_id'))->first();
+        if ($valoration_old == null) {
+            $valuation = new ValorationsModel([
+                'rating' => $request->input('rating'),
+                'comment' => $request->input('comment'),
+                'user_id' => $user->id,
+                'product_id' => $request->input('product_id'),
+            ]);
 
-        $valuation = new ValorationsModel([
-            'rating' => $request->input('rating'),
-            'comment' => $request->input('comment'),
-            'user_id' => $user->id,
-            'product_id' => $request->input('product_id'),
-        ]);
+            $valuation->save();
+        } else {
+            return response()->json(['success' => false, 'message' => 'Ya ha valorado este producto.', 'user' => $user, 'old' => $valoration_old,], 200);
+        }
 
-        $valuation->save();
-
-        return response()->json($valuation, 201);
+        return response()->json(['success' => true, 'message' => 'Valoracion Exitosa'], 200);
     }
 
     /**
@@ -130,7 +134,7 @@ class ValorationsController extends Controller
         return response()->json(null, 204);
     }
 
-    
+
     /**
      * Obtiene todas las valoraciones de un producto por su ID.
      *

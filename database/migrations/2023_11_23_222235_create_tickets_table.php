@@ -1,11 +1,10 @@
 <?php
 
-use App\Models\PaymentLinksModel;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreatePaymentLinksTable extends Migration
+class CreateTicketsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,13 +13,12 @@ class CreatePaymentLinksTable extends Migration
      */
     public function up()
     {
-        Schema::create('payment_links', function (Blueprint $table) {
+        Schema::create('tickets', function (Blueprint $table) {
             $table->id();
-            $table->text('reference');
-            $table->text('link');
-            $table->unsignedBigInteger('user_id');
+            $table->text('subject');
+            $table->text('message');
             $table->text('status');
-            $table->boolean("have_order")->default(0);
+            $table->unsignedBigInteger('user_id');
             $table->timestamps();
         });
     }
@@ -32,6 +30,6 @@ class CreatePaymentLinksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payment_links');
+        Schema::dropIfExists('tickets');
     }
 }

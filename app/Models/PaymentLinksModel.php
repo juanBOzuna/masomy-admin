@@ -26,6 +26,7 @@ class PaymentLinksModel extends Model
         'reference',
         'link',
         'status',
+        'have_order',
         'user_id'
     ];
 

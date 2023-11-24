@@ -140,6 +140,7 @@ class EpaycoController extends Controller
                     'reference' => $llaveDePago,
                     'link' => $response->data->routeLink,
                     'status' => PaymentLinksModel::POR_DEFINIR,
+                    'have_order' => false,
                     'user_id' => $user['id']
                 ]);
 
@@ -163,8 +164,8 @@ class EpaycoController extends Controller
 
             }
             $url = $response->data->routeLink;
-            // dd();
-            return response()->json(['success' => true, 'url' => $url, 'other' => 'other'], 200);
+            // dd($response->data);
+            return response()->json(['success' => true, 'url' => $url, 'payment_reference' => $llaveDePago, 'other' => 'other'], 200);
 
 
         } catch (\Exception $e) {
